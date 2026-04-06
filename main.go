@@ -14,11 +14,9 @@ import (
 func main() {
 	a := app.New()
 	w := a.NewWindow("Clock")
-	w.Resize(fyne.NewSize(320, 150))
-	w.SetFixedSize(true)
 
 	timeText := canvas.NewText("", theme.ForegroundColor())
-	timeText.TextSize = 64
+	timeText.TextSize = 72
 	timeText.TextStyle = fyne.TextStyle{Monospace: true}
 	timeText.Alignment = fyne.TextAlignCenter
 
@@ -28,6 +26,7 @@ func main() {
 	update := func() {
 		now := time.Now()
 		timeText.Text = now.Format("15:04:05")
+		timeText.Color = theme.ForegroundColor()
 		timeText.Refresh()
 		dateLabel.SetText(now.Format("Monday, January 2, 2006"))
 	}
@@ -42,9 +41,16 @@ func main() {
 		}
 	}()
 
-	w.SetContent(container.NewVBox(
-		container.NewPadded(timeText),
-		dateLabel,
-	))
+	// container.NewStack forces timeText to fill the full width so
+	// TextAlignCenter works correctly instead of centering a narrow box
+	content := container.NewPadded(
+		container.NewVBox(
+			container.NewStack(timeText),
+			widget.NewSeparator(),
+			dateLabel,
+		),
+	)
+
+	w.SetContent(content)
 	w.ShowAndRun()
 }
