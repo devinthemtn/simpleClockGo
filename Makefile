@@ -11,7 +11,7 @@ linux: | $(BIN)
 	CGO_ENABLED=1 go build -o $(BIN)/$(APP) .
 
 windows: | $(BIN)
-	GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=$(WINCC) go build -o $(BIN)/$(APP).exe .
+	GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=$(WINCC) go build -ldflags="-H windowsgui" -o $(BIN)/$(APP).exe .
 
 mac: | $(BIN)
 	GOOS=darwin GOARCH=amd64 CGO_ENABLED=1 CC=$(MACCC) go build -o $(BIN)/$(APP)-mac .
