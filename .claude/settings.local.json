@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(echo \"exit: $?\")",
+      "Bash(go mod:*)",
+      "Bash(go get:*)",
+      "Bash(go build:*)",
+      "Bash(dpkg -l libgl1-mesa-dev libx11-dev)",
+      "Bash(dpkg-query -l libgl1-mesa-dev libx11-dev)"
+    ]
+  }
+}
