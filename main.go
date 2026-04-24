@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "embed"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -11,9 +12,16 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+//go:embed assets/clockIcon.png
+var clockIconBytes []byte
+
 func main() {
 	a := app.New()
+	icon := fyne.NewStaticResource("clockIcon.png", clockIconBytes)
+	a.SetIcon(icon)
+
 	w := a.NewWindow("Clock")
+	w.SetIcon(icon)
 
 	timeText := canvas.NewText("", theme.ForegroundColor())
 	timeText.TextSize = 72
