@@ -2,15 +2,21 @@ package main
 
 import (
 	_ "embed"
+	"flag"
 	"fmt"
+	"image/color"
 	"os"
 	"path/filepath"
+	"reflect"
 	"time"
+	"unsafe"
 
+	glfw "github.com/go-gl/glfw/v3.3/glfw"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/driver/desktop"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"gopkg.in/yaml.v3"
@@ -49,12 +55,84 @@ type secondaryClock struct {
 	dayOffset *widget.Label
 }
 
+// dragWidget is a transparent overlay that moves the window when dragged.
+// It is used when the window has no title bar.
+type dragWidget struct {
+	widget.BaseWidget
+	win      fyne.Window
+	viewport *glfw.Window // cached lazily
+	anchorX  float64      // cursor X within window at mouse-down
+	anchorY  float64
+}
+
+func newDragWidget(win fyne.Window) *dragWidget {
+	d := &dragWidget{win: win}
+	d.ExtendBaseWidget(d)
+	return d
+}
+
+func (d *dragWidget) CreateRenderer() fyne.WidgetRenderer {
+	return widget.NewSimpleRenderer(canvas.NewRectangle(color.Transparent))
+}
+
+func (d *dragWidget) ensureViewport() {
+	if d.viewport != nil {
+		return
+	}
+	rv := reflect.ValueOf(d.win).Elem()
+	vp := rv.FieldByName("viewport")
+	if vp.IsValid() {
+		d.viewport = *(**glfw.Window)(unsafe.Pointer(vp.UnsafeAddr()))
+	}
+}
+
+// MouseDown captures the in-window cursor position so Dragged can keep it fixed.
+func (d *dragWidget) MouseDown(_ *desktop.MouseEvent) {
+	d.ensureViewport()
+	if d.viewport != nil {
+		d.anchorX, d.anchorY = d.viewport.GetCursorPos()
+	}
+}
+
+func (d *dragWidget) MouseUp(_ *desktop.MouseEvent) {}
+
+// Dragged repositions the window so the anchor point stays under the cursor.
+// Using GetCursorPos()+GetPos() rather than the Fyne delta avoids the
+// feedback loop where SetPos shifts the window-relative cursor position,
+// causing the next delta to partially cancel the move.
+func (d *dragWidget) Dragged(_ *fyne.DragEvent) {
+	if d.viewport == nil {
+		return
+	}
+	curX, curY := d.viewport.GetCursorPos()
+	winX, winY := d.viewport.GetPos()
+	d.viewport.SetPos(
+		winX+int(curX)-int(d.anchorX),
+		winY+int(curY)-int(d.anchorY),
+	)
+}
+
+func (d *dragWidget) DragEnd() {}
+
 func main() {
+	noTitlebar := flag.Bool("no-titlebar", false, "launch without window titlebar")
+	flag.Parse()
+
 	a := app.New()
 	icon := fyne.NewStaticResource("clockIcon.png", clockIconBytes)
 	a.SetIcon(icon)
 
-	w := a.NewWindow("Clock")
+	var w fyne.Window
+	if *noTitlebar {
+		if drv, ok := a.Driver().(desktop.Driver); ok {
+			w = drv.CreateSplashWindow()
+			w.SetPadded(true)
+		} else {
+			w = a.NewWindow("Clock")
+		}
+	} else {
+		w = a.NewWindow("Clock")
+	}
 	w.SetIcon(icon)
 
 	timeText := canvas.NewText("", theme.ForegroundColor())
@@ -144,6 +222,11 @@ func main() {
 	}
 	content := container.NewPadded(container.NewVBox(vboxItems...))
 
-	w.SetContent(content)
+	if *noTitlebar {
+		dragHandle := newDragWidget(w)
+		w.SetContent(container.NewStack(content, dragHandle))
+	} else {
+		w.SetContent(content)
+	}
 	w.ShowAndRun()
 }

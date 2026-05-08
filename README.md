@@ -6,6 +6,8 @@ A simple cross-platform desktop clock built with Go and [Fyne](https://fyne.io/)
 
 - Large, readable time display
 - Full date shown below the time
+- Optional secondary clocks for additional timezones
+- Day offset indicator when a secondary clock is on a different calendar day
 - Respects system light/dark theme
 - Cross-platform: Linux, Windows, macOS
 
@@ -59,6 +61,35 @@ Binaries are output to the `bin/` directory.
 # Or directly with Go
 go run .
 ```
+
+## Configuration
+
+Secondary clocks are configured via a YAML file. The file is optional — the app runs fine without it.
+
+**Config file location:**
+
+| Platform | Path |
+|----------|------|
+| Linux / macOS (XDG) | `~/.config/simpleclock/config.yaml` |
+| macOS (standard) | `~/Library/Application Support/simpleclock/config.yaml` |
+| Windows | `%APPDATA%\simpleclock\config.yaml` (e.g. `C:\Users\<user>\AppData\Roaming\simpleclock\config.yaml`) |
+
+Create the `simpleclock` directory if it does not exist, then add a `config.yaml`:
+
+```yaml
+clocks:
+  - timezone: "America/New_York"
+    label: "New York"
+  - timezone: "Europe/London"
+    label: "London"
+  - timezone: "Asia/Tokyo"
+    label: "Tokyo"
+```
+
+- `timezone` — IANA timezone name (e.g. `America/Chicago`, `UTC`). Required.
+- `label` — display name shown next to the clock. Defaults to the timezone name if omitted.
+
+Changes to the config file take effect on the next app launch.
 
 ## Dependencies
 
