@@ -9,6 +9,7 @@ A simple cross-platform desktop clock built with Go and [Fyne](https://fyne.io/)
 - Optional secondary clocks for additional timezones
 - Day offset indicator when a secondary clock is on a different calendar day
 - Respects system light/dark theme
+- Borderless mode with draggable window
 - Cross-platform: Linux, Windows, macOS
 
 ## Requirements
@@ -60,6 +61,16 @@ Binaries are output to the `bin/` directory.
 
 # Or directly with Go
 go run .
+```
+
+## Options
+
+| Flag | Description |
+|------|-------------|
+| `--no-titlebar` | Launch without a window title bar. The window can still be dragged by clicking and dragging anywhere on it. |
+
+```bash
+./bin/simpleclock --no-titlebar
 ```
 
 ## Configuration
