@@ -83,7 +83,7 @@ Secondary clocks are configured via a YAML file. The file is optional — the ap
 |----------|------|
 | Linux / macOS (XDG) | `~/.config/simpleclock/config.yaml` |
 | macOS (standard) | `~/Library/Application Support/simpleclock/config.yaml` |
-| Windows | `%APPDATA%\simpleclock\config.yaml` (e.g. `C:\Users\<user>\AppData\Roaming\simpleclock\config.yaml`) |
+| Windows | `%APPDATA%\Roaming\simpleclock\config.yaml` (e.g. `C:\Users\<user>\AppData\Roaming\simpleclock\config.yaml`) |
 
 Create the `simpleclock` directory if it does not exist, then add a `config.yaml`:
 
