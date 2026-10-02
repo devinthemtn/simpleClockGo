@@ -14,6 +14,17 @@ A simple cross-platform desktop clock built with Go and [Fyne](https://fyne.io/)
 - Borderless mode with draggable window
 - Cross-platform: Linux, Windows, macOS
 
+## Download
+
+Prebuilt binaries for Linux and Windows (amd64) are available on the [Releases page](https://github.com/devinthemtn/simpleClockGo/releases/latest).
+
+- **Linux:** download `simpleclock-<version>-linux-amd64.tar.gz`, extract it, and run `./simpleclock`. The OpenGL/X11 runtime libraries must be installed (present on most desktop distributions).
+- **Windows:** download `simpleclock-<version>-windows-amd64.zip`, extract it, and run `simpleclock.exe`.
+
+Verify downloads against `SHA256SUMS` with `sha256sum -c SHA256SUMS --ignore-missing`.
+
+macOS users should build from source (see below).
+
 ## Requirements
 
 Building requires a C compiler (cgo) because Fyne uses OpenGL.
