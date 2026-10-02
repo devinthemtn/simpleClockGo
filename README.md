@@ -2,9 +2,11 @@
 
 A simple cross-platform desktop clock built with Go and [Fyne](https://fyne.io/). Displays the current time and date, updating every second.
 
+![simpleclock showing local time, date, and a secondary GMT clock](assets/simpleclock1.png)
+
 ## Features
 
-- Large, readable time display
+- Large, readable 24-hour time display
 - Full date shown below the time
 - Optional secondary clocks for additional timezones
 - Day offset indicator when a secondary clock is on a different calendar day
@@ -14,6 +16,8 @@ A simple cross-platform desktop clock built with Go and [Fyne](https://fyne.io/)
 
 ## Requirements
 
+Building requires a C compiler (cgo) because Fyne uses OpenGL.
+
 ### Go
 
 Go 1.22 or later.
@@ -21,7 +25,7 @@ Go 1.22 or later.
 ### Linux
 
 ```bash
-sudo apt-get install -y libgl1-mesa-dev libx11-dev libxcursor-dev \
+sudo apt-get install -y gcc pkg-config libgl1-mesa-dev libx11-dev libxcursor-dev \
   libxrandr-dev libxinerama-dev libxi-dev libxxf86vm-dev
 ```
 
@@ -38,13 +42,16 @@ Requires [osxcross](https://github.com/tpoechtrager/osxcross) with `o64-clang` o
 ## Building
 
 ```bash
+git clone https://github.com/devinthemtn/simpleClockGo.git
+cd simpleClockGo
+
 # Linux
 make
 
 # Windows
 make windows
 
-# macOS
+# macOS (amd64)
 make mac
 
 # Clean build artifacts
@@ -81,9 +88,9 @@ Secondary clocks are configured via a YAML file. The file is optional — the ap
 
 | Platform | Path |
 |----------|------|
-| Linux / macOS (XDG) | `~/.config/simpleclock/config.yaml` |
-| macOS (standard) | `~/Library/Application Support/simpleclock/config.yaml` |
-| Windows | `%APPDATA%\Roaming\simpleclock\config.yaml` (e.g. `C:\Users\<user>\AppData\Roaming\simpleclock\config.yaml`) |
+| Linux | `$XDG_CONFIG_HOME/simpleclock/config.yaml` (defaults to `~/.config/simpleclock/config.yaml`) |
+| macOS | `~/Library/Application Support/simpleclock/config.yaml` |
+| Windows | `%APPDATA%\simpleclock\config.yaml` (e.g. `C:\Users\<user>\AppData\Roaming\simpleclock\config.yaml`) |
 
 Create the `simpleclock` directory if it does not exist, then add a `config.yaml`:
 
@@ -100,11 +107,21 @@ clocks:
 - `timezone` — IANA timezone name (e.g. `America/Chicago`, `UTC`). Required.
 - `label` — display name shown next to the clock. Defaults to the timezone name if omitted.
 
-Changes to the config file take effect on the next app launch.
+Entries with a missing or unrecognized timezone are silently skipped. Changes to the config file take effect on the next app launch.
+
+## Troubleshooting
+
+**`Fyne error: Error parsing user locale C`** — harmless; printed when the system locale is unset or set to `C`. Set a locale such as `LANG=en_US.UTF-8` to silence it.
 
 ## Dependencies
 
 - [fyne.io/fyne/v2](https://github.com/fyne-io/fyne) v2.7.3
+- [github.com/go-gl/glfw](https://github.com/go-gl/glfw) v3.3
+- [gopkg.in/yaml.v3](https://github.com/go-yaml/yaml) v3.0.1
+
+## License
+
+Released under the [MIT License](LICENSE).
 
 ## Author
 
