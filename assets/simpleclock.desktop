@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Simple Clock
+Comment=A simple desktop clock
+Exec=simpleclock
+Icon=simpleclock
+Terminal=false
+Categories=Utility;Clock;
+StartupWMClass=simpleclock

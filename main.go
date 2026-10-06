@@ -141,7 +141,17 @@ func main() {
 	} else {
 		w = a.NewWindow("Clock")
 	}
+	w.SetTitle("Clock")
 	w.SetIcon(icon)
+
+	// On Linux/X11 GLFW derives WM_CLASS from the window title unless told
+	// otherwise, which is "Fyne Application" for the untitled splash window.
+	// Desktop environments match WM_CLASS against StartupWMClass in
+	// simpleclock.desktop to find the app name and icon. GLFW is initialised
+	// by window creation above and the native window is not created until
+	// Show, so the hints apply. They are ignored on other platforms.
+	glfw.WindowHintString(glfw.X11ClassName, "simpleclock")
+	glfw.WindowHintString(glfw.X11InstanceName, "simpleclock")
 
 	timeText := canvas.NewText("", theme.ForegroundColor())
 	timeText.TextSize = 72

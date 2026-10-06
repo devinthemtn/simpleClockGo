@@ -72,6 +72,17 @@ make clean
 
 Binaries are output to the `bin/` directory.
 
+### Installing on Linux
+
+```bash
+make install    # installs to ~/.local (override with PREFIX=/usr/local)
+make uninstall
+```
+
+This installs the binary, the icon and a `.desktop` entry, so the app shows up
+in your launcher and the taskbar/dock shows the name "Simple Clock" and its icon
+instead of a generic one.
+
 ## Running
 
 ```bash
