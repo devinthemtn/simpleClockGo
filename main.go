@@ -31,7 +31,8 @@ type ClockConfig struct {
 }
 
 type Config struct {
-	Clocks []ClockConfig `yaml:"clocks"`
+	AlwaysOnTop bool          `yaml:"always_on_top"`
+	Clocks      []ClockConfig `yaml:"clocks"`
 }
 
 func loadConfig() Config {
@@ -76,14 +77,20 @@ func (d *dragWidget) CreateRenderer() fyne.WidgetRenderer {
 }
 
 func (d *dragWidget) ensureViewport() {
-	if d.viewport != nil {
-		return
+	if d.viewport == nil {
+		d.viewport = glfwWindow(d.win)
 	}
-	rv := reflect.ValueOf(d.win).Elem()
+}
+
+// glfwWindow returns the underlying GLFW window of a Fyne window, or nil if
+// it is unavailable (e.g. not yet created or a non-GLFW driver).
+func glfwWindow(win fyne.Window) *glfw.Window {
+	rv := reflect.ValueOf(win).Elem()
 	vp := rv.FieldByName("viewport")
-	if vp.IsValid() {
-		d.viewport = *(**glfw.Window)(unsafe.Pointer(vp.UnsafeAddr()))
+	if !vp.IsValid() {
+		return nil
 	}
+	return *(**glfw.Window)(unsafe.Pointer(vp.UnsafeAddr()))
 }
 
 // MouseDown captures the in-window cursor position so Dragged can keep it fixed.
@@ -116,6 +123,7 @@ func (d *dragWidget) DragEnd() {}
 
 func main() {
 	noTitlebar := flag.Bool("no-titlebar", false, "launch without window titlebar")
+	alwaysOnTop := flag.Bool("always-on-top", false, "keep the window above other windows")
 	flag.Parse()
 
 	a := app.New()
@@ -144,6 +152,9 @@ func main() {
 	dateLabel.Alignment = fyne.TextAlignCenter
 
 	cfg := loadConfig()
+	if cfg.AlwaysOnTop {
+		*alwaysOnTop = true
+	}
 
 	var clocks []secondaryClock
 	for _, cc := range cfg.Clocks {
@@ -227,6 +238,16 @@ func main() {
 		w.SetContent(container.NewStack(content, dragHandle))
 	} else {
 		w.SetContent(content)
+	}
+
+	if *alwaysOnTop {
+		// Fyne has no always-on-top API; set the GLFW floating attribute once
+		// the window exists. OnStarted runs on the main thread after Show.
+		a.Lifecycle().SetOnStarted(func() {
+			if vp := glfwWindow(w); vp != nil {
+				vp.SetAttrib(glfw.Floating, glfw.True)
+			}
+		})
 	}
 	w.ShowAndRun()
 }

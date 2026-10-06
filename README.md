@@ -12,6 +12,7 @@ A simple cross-platform desktop clock built with Go and [Fyne](https://fyne.io/)
 - Day offset indicator when a secondary clock is on a different calendar day
 - Respects system light/dark theme
 - Borderless mode with draggable window
+- Optional always-on-top mode
 - Cross-platform: Linux, Windows, macOS
 
 ## Download
@@ -86,14 +87,15 @@ go run .
 | Flag | Description |
 |------|-------------|
 | `--no-titlebar` | Launch without a window title bar. The window can still be dragged by clicking and dragging anywhere on it. |
+| `--always-on-top` | Keep the clock window above other windows. Can also be enabled with `always_on_top: true` in the config file. |
 
 ```bash
-./bin/simpleclock --no-titlebar
+./bin/simpleclock --no-titlebar --always-on-top
 ```
 
 ## Configuration
 
-Secondary clocks are configured via a YAML file. The file is optional — the app runs fine without it.
+Secondary clocks and other settings are configured via a YAML file. The file is optional — the app runs fine without it.
 
 **Config file location:**
 
@@ -106,6 +108,8 @@ Secondary clocks are configured via a YAML file. The file is optional — the ap
 Create the `simpleclock` directory if it does not exist, then add a `config.yaml`:
 
 ```yaml
+always_on_top: true
+
 clocks:
   - timezone: "America/New_York"
     label: "New York"
@@ -115,6 +119,7 @@ clocks:
     label: "Tokyo"
 ```
 
+- `always_on_top` — keep the window above other windows (same as `--always-on-top`). Defaults to `false`.
 - `timezone` — IANA timezone name (e.g. `America/Chicago`, `UTC`). Required.
 - `label` — display name shown next to the clock. Defaults to the timezone name if omitted.
 
